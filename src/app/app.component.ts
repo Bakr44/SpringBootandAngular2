@@ -6,6 +6,7 @@ import { BehaviorSubject, Observable, catchError, map, of, startWith } from 'rxj
 import { DataState } from './enum/data-state.enum';
 import { Status } from './enum/status.enum';
 
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -18,6 +19,8 @@ export class AppComponent implements OnInit {
   private filterSubject = new BehaviorSubject<string>('');
   private dataSubject = new BehaviorSubject<CustomResponse>(null);
   filterStatus$ = this.filterSubject.asObservable();
+  selectedStatus: Status = Status.ALL; // Initialize with a default status
+
 
   constructor(private serverService: ServerService) { }
 
@@ -51,6 +54,19 @@ export class AppComponent implements OnInit {
         catchError((error: string) => {
           this.filterSubject.next('');
           return of({ dataState: DataState.ERROR_STATE, error })
+        })
+      );
+  }
+
+  filterServers(status: Status): void {
+    this.appState$ = this.serverService.filter$(status, this.dataSubject.value)
+      .pipe(
+        map(response => {
+          return { dataState: DataState.LOADED_STATE, appData: response };
+        }),
+        startWith({ dataState: DataState.LOADED_STATE, appData: this.dataSubject.value }),
+        catchError((error: string) => {
+          return of({ dataState: DataState.ERROR_STATE, error });
         })
       );
   }

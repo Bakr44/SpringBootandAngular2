@@ -11,14 +11,15 @@
                     <div class="col-sm-6">
                         <button type="button" class="btn btn-primary">Print Report</button>
 
-                        <a href="#add" class="btn btn-success" data-toggle="model">
+                        <a href="#addEmployeeModel" class="btn btn-success" data-toggle="modal">
                             <i class="material-icons">&#xE147;</i>
                             <span>New Server</span>
                         </a>
+
                         <span>
-                            <select name="status"
+                            <select (ngModelChange)="filterServers($event)" ngModel="ALL" name="status"
                              class="btn btn-info" style="height: 32.91px;">
-                                <option value="All">All</option>
+                                <option value="ALL">ALL</option>
                                 <option value="SERVER_UP">SERVER UP</option>
                                 <option value="SERVER_DOWN">SERVER DOWN</option>
                             </select>
@@ -26,8 +27,7 @@
                     </div>
                 </div>
             </div><br>
-            <ng-container *ngIf="(appState$ | async) as appState" [ngSwitch]="appState.dataState">
-            <ng-container *ngSwitchCase="DataState.LOADING_STATE">
+            <ng-container *ngIf="(appState$ | async) as appState" [ngSwitch]="appState.dataState">     <ng-container *ngSwitchCase="DataState.LOADING_STATE">
                 <div class="col-md-12 single-note-item text-center">
                 <div class="spinner-border text-info" role="status"></div>
                 </div>
@@ -58,7 +58,7 @@
                                 [ngClass]="[server.status === Status.SERVER_UP ? ' badge-success' : ' badge-danger']">
                                     {{server.status === Status.SERVER_UP ? 'SERVER UP' : 'SERVER DOWN'}}
                                 </span>
-                                </td>
+                                </td>    
                                 <td>
                                 <a (click)="pingServer(server.ipAddress)" style="cursor: pointer;">
                                 <i *ngIf="(filterStatus$ | async) === ''|| (filterStatus$ | async) !== server.ipAddress"

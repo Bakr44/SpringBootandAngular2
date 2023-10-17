@@ -7,6 +7,17 @@ body{
     margin-top: 20px;
 }
 
+.table-wrapper {
+    width: 90%;
+    margin: 0 auto;
+  }
+  /* .table-responsive {
+    max-width: 70%;
+    overflow-y: scroll;
+    border: solid  red;
+
+  } */
+
 .card{
     position: relative;
     display: flex;
@@ -21,4 +32,8 @@ body{
 
 .card{
     margin-bottom: 30px;
+}
+
+.table-title{
+    background-color: aqua;
 }
