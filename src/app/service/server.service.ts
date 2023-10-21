@@ -69,7 +69,7 @@ export class ServerService {
       );
 
   delete$ = (serverId: number) => <Observable<CustomResponse>>
-    this.http.delete<CustomResponse>(`${this.apiUrl}/api/v1/server/ping/${serverId}`)
+    this.http.delete<CustomResponse>(`${this.apiUrl}/api/v1/server/delete/${serverId}`)
       .pipe(
         tap(console.log),
         catchError(this.handleError)

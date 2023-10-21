@@ -7,6 +7,7 @@ import { DataState } from './enum/data-state.enum';
 import { Status } from './enum/status.enum';
 import { NgForm } from '@angular/forms';
 import { Server } from './interface/server';
+import { NotifierService } from 'angular-notifier';
 
 
 @Component({
@@ -23,16 +24,20 @@ export class AppComponent implements OnInit {
   filterStatus$ = this.filterSubject.asObservable();
   private isLoading = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoading.asObservable();
+  private readonly notifier: NotifierService;
 
 
-  constructor(private serverService: ServerService) { }
+
+  constructor(private serverService: ServerService, private notifierService: NotifierService) { }
 
   ngOnInit(): void {
     this.appState$ = this.serverService.servers$
       .pipe(
         map(response => {
           this.dataSubject.next(response);
-          return { dataState: DataState.LOADED_STATE, appData: response }
+          return {
+            dataState: DataState.LOADED_STATE, appData: { ...response, data: { servers: response.data.servers.reverse() } }
+          }
         }),
         startWith({ dataState: DataState.LOADING_STATE }),
         catchError((error: string) => {
@@ -94,6 +99,40 @@ export class AppComponent implements OnInit {
         })
       );
   }
+
+  deleteServer(server: Server): void {
+    this.appState$ = this.serverService.delete$(server.id)
+      .pipe(
+        map(response => {
+          this.dataSubject.next(
+            {
+              ...response, data:
+                { servers: this.dataSubject.value.data.servers.filter(s => s.id !== server.id) }
+            }
+          )
+          return { dataState: DataState.LOADED_STATE, appData: this.dataSubject.value }
+        }),
+        startWith({ dataState: DataState.LOADED_STATE, appData: this.dataSubject.value }),
+        catchError((error: string) => {
+          return of({ dataState: DataState.ERROR_STATE, error })
+        })
+      );
+  }
+
+  printReport(): void {
+    // window.print(); //print to pdf file
+    let dataType = 'application/vnd.ms-excel.sheet.marcoEnabled.12';
+    let tableSelect = document.getElementById('servers')
+    let tableHtml = tableSelect.outerHTML.replace(/ /g, '%20');
+    let downloadLink = document.createElement('a');
+    document.body.appendChild(downloadLink);
+    downloadLink.href = 'data:' + dataType + ', ' + tableHtml;
+    downloadLink.download = 'server-report.xls';
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+
+  }
+
 }
 
 
